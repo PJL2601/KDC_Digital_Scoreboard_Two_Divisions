@@ -1536,9 +1536,11 @@ def setup():
         ):
 
             flash(
-                "Set ADMIN_SETUP_CODE and FLASK_SECRET_KEY "
-                "in your environment before creating "
-                "the administrator.",
+                "Setup configuration was not found. Copy "
+                ".env.example to .env and replace the sample "
+                "values, or set ADMIN_SETUP_CODE and "
+                "FLASK_SECRET_KEY before starting the app. "
+                "Restart the app after changing configuration.",
                 "error",
             )
 

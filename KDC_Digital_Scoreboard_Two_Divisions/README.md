@@ -79,7 +79,7 @@ Individual scores use the same point options as that game's team scoring (Game 8
 
 ## Settings reference
 
-Set as environment variables, or in `.env.boys` / `.env.girls` / `.env` (real environment variables win; then `.env.<division>`; then `.env`).
+Set as environment variables, or in `.env.boys` / `.env.girls` / `.env` (real environment variables win; then `.env.<division>`; then `.env`). The `.env.example` files are templates only and are not loaded automatically: copy the appropriate example to `.env` or `.env.boys` / `.env.girls`, then replace sample values. Division-specific files are loaded when `KDC_DIVISION` is selected; the `run_boys.bat` and `run_girls.bat` launchers set it for you. Restart the app after changing settings.
 A `BOYS_` / `GIRLS_` prefix (e.g. `GIRLS_FLASK_SECRET_KEY`) overrides the plain name for that division.
 
 | Variable | Meaning |
