@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}KDC 2026 · Digital Scoreboard{% endblock %}
+{% block content %}
+<section class="hero">
+  <div class="hero-decor">✨ 🪔 🎆 🪔 ✨</div>
+  <p class="eyebrow">BAPS · KIDS DIWALI CELEBRATION{% if division_label %} · {{ division_label|upper }} DIVISION{% endif %}</p>
+  <h1>Let the <span>Diwali Games</span> Begin!</h1>
+  <p class="lead">One event. Eight games. One live leaderboard.</p>
+  <div class="hero-actions"><a class="button primary" href="{{ url_for('scoreboard') }}">🏆 View Live Scoreboard</a><a class="button secondary" href="{{ url_for('admin_login') }}">Admin Dashboard</a></div>
+  <div class="feature-row"><div>📱 <b>Scan & Score</b><small>Host QR access</small></div><div>⚡ <b>Live Updates</b><small>Instant leaderboard refresh</small></div><div>🤝 <b>Fair Play</b><small>Review before publishing</small></div></div>
+</section>
+<section class="section-head"><div><p class="eyebrow">THE CHALLENGES</p><h2>Eight games. Endless fun.</h2></div><a class="text-link" href="{{ url_for('scoreboard') }}">See current standings →</a></section>
+<div class="game-grid">
+{% set games = [
+("01","Balloon Hula Hoop Relay Race","🎈"),("02","Diwali Dhamaka Glass Tower","🥤"),
+("03","Diwali Hoopla Twirl Race","⭕"),("04","Diwali Patakha Glass Stack","🎯"),
+("05","Diwali Hula Hut Dash","🌈"),("06","Diwali Balloon Catch Blast","🎈"),
+("07","Diwali Balloon Cup Mahal","🏰"),("08","Diwali Cup Tower Dhamaka","🏆")] %}
+{% for n, name, emoji in games %}<article class="game-card"><span class="game-number">GAME {{ n }}</span><span class="game-emoji">{{ emoji }}</span><h3>{{ name }}</h3><p>Teamwork · Focus · Fun</p></article>{% endfor %}
+</div>
+<div class="notice">🔐 Host scoring pages require the QR link created by an administrator. Only approved scores appear on the public leaderboard.</div>
+{% endblock %}

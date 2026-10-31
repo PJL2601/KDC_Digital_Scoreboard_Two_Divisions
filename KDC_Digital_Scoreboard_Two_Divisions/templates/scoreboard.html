@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Live Scoreboard · KDC 2026{% if division_label %} · {{ division_label }}{% endif %}{% endblock %}
+{% block content %}
+<div class="scoreboard-page">
+<div class="scoreboard-hero"><div class="firework">✦ ✺ ✦</div><p class="eyebrow">🪔 BAPS · KIDS DIWALI CELEBRATION{% if division_label %} · {{ division_label|upper }} DIVISION{% endif %} 🪔</p><h1>Diwali <span>Champions</span></h1><p>Every game counts. Every team shines.</p><div class="board-status"><span class="live-pill">● LIVE SCOREBOARD</span><span id="last-updated">Connecting…</span></div></div>
+<div class="board-toolbar"><div><p class="eyebrow">THE STANDINGS</p><h2 id="board-title">Team Leaderboard</h2></div><div class="view-toggle"><button class="toggle active" id="overview-btn">Overview</button><button class="toggle" id="individuals-btn">Individuals</button><button class="toggle" id="spotlight-btn">Spotlight</button><button class="toggle" onclick="document.documentElement.requestFullscreen?.()">⛶ Full screen</button></div></div>
+<div id="podium" class="podium team-only"></div>
+<div class="table-wrap scoreboard-table-wrap team-only"><table class="scoreboard-table"><thead id="board-head"></thead><tbody id="board-body"><tr><td class="empty">Loading scores…</td></tr></tbody></table></div>
+<div id="individual-board" class="hidden"><div id="ind-podium" class="podium"></div><div class="table-wrap scoreboard-table-wrap"><table class="scoreboard-table"><thead id="ind-head"></thead><tbody id="ind-body"></tbody></table></div></div>
+<div id="spotlight" class="spotlight hidden"><div class="spotlight-label">GAME SPOTLIGHT</div><div id="game-cards" class="game-grid"></div></div>
+<div class="board-footer"><span>🪔 KDC 2026</span><span>Play fair · Help each other · Have fun!</span><span>✨ 🏆 ✨</span></div>
+</div>
+<script>
+let currentMode='overview';
+const head=document.getElementById('board-head'), body=document.getElementById('board-body');
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(data){
+ const teams=data.teams||[], games=data.games||[];
+ document.getElementById('last-updated').textContent='Updated '+new Date(data.updated_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+ document.getElementById('podium').innerHTML=teams.slice(0,3).map((t,i)=>`<div class="podium-card rank-${i+1}"><span class="podium-medal">${['🥇','🥈','🥉'][i]}</span><span class="team-dot" style="background:${escapeHtml(t.color)}"></span><b>${escapeHtml(t.name)}</b><strong>${t.total}</strong><small>POINTS</small></div>`).join('');
+ head.innerHTML='<tr><th>Rank</th><th>Team</th><th>Age group</th>'+games.map(g=>`<th title="${escapeHtml(g.name)}">G${g.number}</th>`).join('')+'<th>Total</th></tr>';
+ body.innerHTML=teams.length?teams.map(t=>`<tr><td class="rank-cell">${t.rank===1?'🥇':t.rank===2?'🥈':t.rank===3?'🥉':t.rank}</td><td><span class="team-dot" style="background:${escapeHtml(t.color)}"></span><b>${escapeHtml(t.name)}</b></td><td>${escapeHtml(t.age_group)}</td>${games.map(g=>`<td>${t.games[String(g.number)]||0}</td>`).join('')}<td class="total-cell">${t.total}</td></tr>`).join(''):'<tr><td colspan="12" class="empty">Scores will appear here once teams are added and approved scores are entered.</td></tr>';
+ const ppl=data.individuals||[];
+ document.getElementById('ind-podium').innerHTML=ppl.filter(p=>p.total>0&&p.rank<=3).slice(0,3).map(p=>`<div class="podium-card rank-${p.rank}"><span class="podium-medal">${['🥇','🥈','🥉'][p.rank-1]}</span><b>${escapeHtml(p.name)}</b><strong>${p.total}</strong><small>POINTS</small></div>`).join('');
+ document.getElementById('ind-head').innerHTML='<tr><th>Rank</th><th>Child</th>'+games.map(g=>`<th title="${escapeHtml(g.name)}">G${g.number}</th>`).join('')+'<th>Total</th></tr>';
+ document.getElementById('ind-body').innerHTML=ppl.length?ppl.map(p=>`<tr><td class="rank-cell">${p.total>0&&p.rank===1?'🥇':p.total>0&&p.rank===2?'🥈':p.total>0&&p.rank===3?'🥉':p.rank}</td><td><b>${escapeHtml(p.name)}</b></td>${games.map(g=>`<td>${p.games[String(g.number)]||0}</td>`).join('')}<td class="total-cell">${p.total}</td></tr>`).join(''):'<tr><td colspan="12" class="empty">Individual scores will appear here once children are added and scored.</td></tr>';
+ document.getElementById('game-cards').innerHTML=games.map(g=>`<article class="game-card"><span class="game-number">GAME ${g.number} · ${escapeHtml(g.state.toUpperCase())}</span><h3>${escapeHtml(g.name)}</h3><p>${teams.slice().sort((a,b)=>(b.games[String(g.number)]||0)-(a.games[String(g.number)]||0)).slice(0,3).map((t,i)=>`${['🥇','🥈','🥉'][i]} ${escapeHtml(t.name)} — ${t.games[String(g.number)]||0} pts`).join('<br>')||'Waiting for approved scores'}</p></article>`).join('');
+}
+async function refresh(){try{const r=await fetch('{{ url_for("scoreboard_api") }}',{cache:'no-store'});if(!r.ok)throw new Error('Could not load scoreboard');render(await r.json());}catch(e){document.getElementById('last-updated').textContent='Reconnecting…';}}
+function mode(m){currentMode=m;
+ const show=(sel,on)=>document.querySelectorAll(sel).forEach(el=>el.classList.toggle('hidden',!on));
+ show('.team-only',m==='overview');show('#individual-board',m==='individuals');show('#spotlight',m==='spotlight');
+ document.getElementById('overview-btn').classList.toggle('active',m==='overview');
+ document.getElementById('board-title').textContent=m==='individuals'?'Individual Leaderboard':m==='spotlight'?'Game Spotlight':'Team Leaderboard';
+ document.getElementById('individuals-btn').classList.toggle('active',m==='individuals');
+ document.getElementById('spotlight-btn').classList.toggle('active',m==='spotlight');}
+document.getElementById('overview-btn').onclick=()=>mode('overview');document.getElementById('individuals-btn').onclick=()=>mode('individuals');document.getElementById('spotlight-btn').onclick=()=>mode('spotlight');refresh();setInterval(refresh,3000);
+</script>
+{% endblock %}

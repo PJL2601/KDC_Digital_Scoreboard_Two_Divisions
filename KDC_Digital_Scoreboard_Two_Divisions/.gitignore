@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.boys
+.env.girls
+# Division databases hold live event data - keep them out of git:
+instance/*.db
+*.db-journal
+.pytest_cache/
+# Personal data (children's names, original event DB): keep the repo PRIVATE,
+# or remove these two lines if you deliberately want them in git.
+original_backup/*.db
+data/*.xlsx

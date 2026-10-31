@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Initial Setup · KDC{% endblock %}
+{% block content %}
+<div class="auth-card"><div class="auth-icon">🔐</div><p class="eyebrow">FIRST-TIME CONFIGURATION</p><h1>Create administrator</h1><p>Set up the account that controls teams, host QR codes and score approvals.</p>
+<form method="post" class="stack">
+<input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<label>Setup code <input name="setup_code" required autocomplete="off" placeholder="Your private setup code"></label>
+<label>Admin username <input name="username" required minlength="3" autocomplete="username"></label>
+<label>Password <input type="password" name="password" required minlength="12" autocomplete="new-password" placeholder="At least 12 characters"></label>
+<button class="button primary full">Create admin account</button>
+</form><small class="muted">Set ADMIN_SETUP_CODE and FLASK_SECRET_KEY in your environment before setup.</small></div>
+{% endblock %}

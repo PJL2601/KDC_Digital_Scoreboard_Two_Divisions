@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}KDC Digital Scoreboard{% endblock %}{% if division_label %} · {{ division_label }}{% endif %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <meta name="theme-color" content="#31065f">
+</head>
+<body{% if division %} class="division-{{ division }}"{% endif %}>
+<header class="topbar">
+  <a class="brand" href="{{ url_for('home') }}"><span class="brand-mark">🪔</span><span><b>KDC 2026{% if division_label %} <em class="division-pill">{{ division_label }}</em>{% endif %}</b><small>Kids Diwali Celebration</small></span></a>
+  <nav>
+    <a href="{{ url_for('scoreboard') }}">Live Scoreboard</a>
+    {% if is_admin %}<a href="{{ url_for('admin_dashboard') }}">Admin</a>
+    <form class="inline" method="post" action="{{ url_for('admin_logout') }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="nav-button">Sign out</button></form>
+    {% else %}<a href="{{ url_for('admin_login') }}">Admin login</a>{% endif %}
+  </nav>
+</header>
+<main class="page">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}<div class="flashes">{% for category, message in messages %}<div class="flash {{ category }}">{{ message }}</div>{% endfor %}</div>{% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+</main>
+<footer>Made for KDC 2026 · Joy, teamwork and good sportsmanship <span>🪔 ✨ 🏆</span></footer>
+</body>
+</html>

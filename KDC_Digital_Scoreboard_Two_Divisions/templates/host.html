@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Game {{ game.number }} Host · KDC{% endblock %}
+{% block content %}
+<div class="host-header"><div><p class="eyebrow">HOST SCORING STATION · {{ host.host_slot|upper }}</p><h1>Game {{ game.number }} <span class="live-pill">● OPEN</span></h1><h2>{{ game.name }}</h2><p class="muted">Welcome, {{ host.host_name }}. Submitted scores await administrator approval.</p></div><div class="host-icon">🎯</div></div>
+<div class="host-layout"><section class="panel"><div class="panel-heading"><div><p class="eyebrow">ENTER A RESULT</p><h2>Submit team score</h2></div></div>
+<form method="post" class="stack" id="score-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+<label>Team <select name="team_id" required><option value="">Select a team…</option>{% for team in teams %}<option value="{{ team.id }}">{{ team.name }} · {{ team.age_group }}</option>{% endfor %}</select></label>
+<label>Main score <select name="main_points" required><option value="">Choose outcome…</option>{% for label, points in criteria %}<option value="{{ points }}">{{ points }} points — {{ label }}</option>{% endfor %}</select></label>
+<label>Bonus category <select name="bonus_label" id="bonus-label"><option value="">No bonus</option>{% for label, points in bonuses %}<option value="{{ label }}" data-points="{{ points }}">{{ label }} (+{{ points }})</option>{% endfor %}</select></label>
+<input type="hidden" name="bonus_points" id="bonus-points" value="0">
+<label>Note (optional) <textarea name="note" maxlength="300" rows="2" placeholder="Optional note for the administrator"></textarea></label>
+<div class="score-preview"><span>Estimated total</span><strong id="total-preview">—</strong><small>Points become official after approval.</small></div>
+<button class="button primary full" id="submit-button">Submit score for review</button></form>
+</section>
+<section class="panel"><div class="panel-heading"><div><p class="eyebrow">SCORING REFERENCE</p><h2>Game {{ game.number }} points</h2></div></div><ul class="criteria-list">{% for label, points in criteria %}<li><span>{{ label }}</span><b>{{ points }} pts</b></li>{% endfor %}</ul><div class="notice">⭐ Bonus points are optional. Select one bonus category per submission. The administrator reviews every score before it appears on the public scoreboard.</div>
+<div class="panel-heading space-top"><div><p class="eyebrow">RECENT SUBMISSIONS</p><h2>Score status</h2></div></div><div class="submission-list">{% for score in recent %}<div class="submission"><div><b>{{ score.team.name }}</b><small>{{ score.main_points }} main + {{ score.bonus_points }} bonus · {{ score.entered_by }}</small></div><span class="status {{ score.status }}">{{ score.status|title }}</span></div>{% else %}<p class="empty">No scores submitted yet.</p>{% endfor %}</div></section></div>
+<div class="host-layout space-top" id="individual">
+<section class="panel"><div class="panel-heading"><div><p class="eyebrow">INDIVIDUAL SCORE</p><h2>Score a child</h2></div></div>
+{% if unscored_participants %}
+<form method="post" class="stack" id="individual-form"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><input type="hidden" name="kind" value="individual">
+<label>Child <select name="participant_id" required><option value="">Select a child…</option>{% for person in unscored_participants %}<option value="{{ person.id }}">{{ person.name }}{% if person.age %} · age {{ person.age }}{% endif %}</option>{% endfor %}</select></label>
+<label>Score <select name="points" required><option value="">Choose outcome…</option>{% for label, points in criteria %}<option value="{{ points }}">{{ points }} points — {{ label }}</option>{% endfor %}</select></label>
+<label>Note (optional) <textarea name="note" maxlength="300" rows="2" placeholder="Optional note"></textarea></label>
+<div class="notice">Each child can receive <b>one</b> score per game. Both hosts see the same list, and a saved score can only be corrected by the administrator.</div>
+<button class="button primary full" id="individual-button">Save individual score</button></form>
+{% elif participant_total %}<p class="empty">✅ Every child already has a score for this game.</p>
+{% else %}<p class="empty">No children have been added yet. Ask the administrator to import the participant list.</p>{% endif %}
+</section>
+<section class="panel"><div class="panel-heading"><div><p class="eyebrow">SHARED LIST</p><h2>Individual scores · Game {{ game.number }}</h2></div><span class="count-pill">{{ individual_scores|length }} / {{ participant_total }} scored</span></div>
+<div class="submission-list">{% for score in individual_scores %}<div class="submission"><div><b>{{ score.participant.name }}</b><small>{{ score.entered_by }}{% if score.note %} · {{ score.note }}{% endif %}</small></div><span class="status approved">{{ score.points }} pts</span></div>{% else %}<p class="empty">No individual scores yet.</p>{% endfor %}</div></section></div>
+<script>
+const main = document.querySelector('[name="main_points"]');
+const bonusLabel = document.getElementById('bonus-label');
+const bonusPoints = document.getElementById('bonus-points');
+const preview = document.getElementById('total-preview');
+function updatePreview(){ const m = Number(main.value || 0); const opt = bonusLabel.options[bonusLabel.selectedIndex]; const b = Number(opt?.dataset?.points || 0); bonusPoints.value = b; preview.textContent = main.value ? `${m+b} points` : '—'; }
+main.addEventListener('change', updatePreview); bonusLabel.addEventListener('change', updatePreview);
+const indForm=document.getElementById('individual-form'); if(indForm) indForm.addEventListener('submit', e => { const btn=document.getElementById('individual-button'); btn.disabled=true; btn.textContent='Saving…'; });
+document.getElementById('score-form').addEventListener('submit', e => { if (!confirm('Submit this score for administrator review?')) e.preventDefault(); else { const btn=document.getElementById('submit-button'); btn.disabled=true; btn.textContent='Submitting…'; }});
+</script>
+{% endblock %}
