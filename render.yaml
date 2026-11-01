@@ -13,7 +13,7 @@
 # in the dashboard and they are never stored in git.
 #
 # IMPORTANT: this file must live at the TOP LEVEL of the repo.
-# The project code is nested two folders deep, so each web service
+# The project code is nested one folder deep, so each web service
 # below sets `rootDir` to that inner folder (where app.py lives).
 # See RENDER_DEPLOY.md for full steps.
 # ------------------------------------------------------------
@@ -24,7 +24,7 @@ services:
     name: kdc-boys
     runtime: python
     plan: free
-    rootDir: KDC_Digital_Scoreboard_Two_Divisions/KDC_Digital_Scoreboard_Two_Divisions
+    rootDir: KDC_Digital_Scoreboard_Two_Divisions
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --workers 2"
     healthCheckPath: /health
@@ -47,7 +47,7 @@ services:
     name: kdc-girls
     runtime: python
     plan: free
-    rootDir: KDC_Digital_Scoreboard_Two_Divisions/KDC_Digital_Scoreboard_Two_Divisions
+    rootDir: KDC_Digital_Scoreboard_Two_Divisions
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app --bind 0.0.0.0:$PORT --workers 2"
     healthCheckPath: /health
