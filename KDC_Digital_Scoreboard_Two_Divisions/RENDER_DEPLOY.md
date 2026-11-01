@@ -22,20 +22,19 @@ admin credentials are automatically identical on both sites.
 ├── render.yaml            <-- MUST be at the top level
 ├── RENDER_DEPLOY.md
 └── KDC_Digital_Scoreboard_Two_Divisions/
-    └── KDC_Digital_Scoreboard_Two_Divisions/
-        ├── app.py
-        ├── requirements.txt   <-- the psycopg2-binary version
-        └── ... (all other project files)
+    ├── app.py
+    ├── requirements.txt   <-- the psycopg2-binary version
+    └── ... (all other project files)
 ```
 
-- `render.yaml` at the repo root (uses `rootDir` to build inside the inner
-  folder, so your code does not move).
-- `requirements.txt` in the inner folder, with `psycopg2-binary` (not plain
+- `render.yaml` at the repo root (uses `rootDir: KDC_Digital_Scoreboard_Two_Divisions`
+  to build inside the project folder, so your code does not move).
+- `requirements.txt` in the project folder, with `psycopg2-binary` (not plain
   `psycopg2`, which fails to build on Render).
 
 ```powershell
 git add render.yaml
-git add KDC_Digital_Scoreboard_Two_Divisions/KDC_Digital_Scoreboard_Two_Divisions/requirements.txt
+git add KDC_Digital_Scoreboard_Two_Divisions/requirements.txt
 git commit -m "Render blueprint (external DB) + psycopg2-binary"
 git push
 ```
